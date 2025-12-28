@@ -158,25 +158,17 @@ export function useTelegram() {
         return false;
       }
 
-      // 构建 inline query，包含富媒体消息的参数
-      const queryData = {
-        type: 'rich_media',
-        image: options.imageUrl || '',
-        title: options.title || 'Telegram Mini App',
-        description: options.description || '快来体验这个超棒的应用！',
-        buttonText: options.buttonText || '打开 Mini App',
-        miniAppUrl: options.miniAppUrl || window.location.href
-      };
-
-      // 将参数编码为 query string
-      const query = `rich_media:${JSON.stringify(queryData)}`;
+      // 使用简化的查询，避免复杂的 JSON
+      const simpleQuery = 'share_app';
       
-      // 调用 switchInlineQuery，让用户选择聊天发送富媒体消息
-      tg.value.switchInlineQuery(query, ['groups', 'users']);
-      
-      // 成功调用后显示提示
-      showAlert('✅ 已调用分享功能\n请选择要分享的聊天');
-      return true;
+      try {
+        tg.value.switchInlineQuery(simpleQuery, ['users', 'groups']);
+        showAlert('✅ 已调用分享功能\n查询内容: ' + simpleQuery);
+        return true;
+      } catch (error) {
+        showAlert('❌ 分享失败: ' + error.message);
+        return false;
+      }
     } catch (error) {
       showAlert('❌ 分享失败: ' + error.message);
       return false;

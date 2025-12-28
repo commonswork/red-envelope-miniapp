@@ -76,8 +76,9 @@ const testBasicInlineQuery = () => {
   }
   
   try {
-    tg.value.switchInlineQuery('debug_test', ['users', 'groups']);
-    showAlert('✅ 已调用 switchInlineQuery\n查询内容: debug_test');
+    // 使用空字符串测试
+    tg.value.switchInlineQuery('', ['users', 'groups']);
+    showAlert('✅ 已调用 switchInlineQuery\n查询内容: 空字符串');
   } catch (error) {
     showAlert('❌ 调用失败: ' + error.message);
   }
