@@ -131,6 +131,41 @@ export function useTelegram() {
     }
   };
 
+  // 分享富媒体消息（通过机器人发送带图片和按钮的消息）
+  const shareRichMessage = (options = {}) => {
+    if (!tg.value) {
+      console.error('Telegram WebApp 未初始化');
+      return false;
+    }
+
+    try {
+      // 检查 switchInlineQuery 方法是否存在
+      if (typeof tg.value.switchInlineQuery !== 'function') {
+        console.error('switchInlineQuery 方法不可用');
+        return false;
+      }
+
+      // 构建 inline query，包含富媒体消息的参数
+      const queryData = {
+        type: 'rich_media',
+        image: options.imageUrl || '',
+        title: options.title || 'Telegram Mini App',
+        description: options.description || '快来体验这个超棒的应用！',
+        buttonText: options.buttonText || '打开 Mini App',
+        miniAppUrl: options.miniAppUrl || window.location.href
+      };
+
+      // 将参数编码为 query string
+      const query = `rich_media:${JSON.stringify(queryData)}`;
+      
+      // 调用 switchInlineQuery，让用户选择聊天发送富媒体消息
+      tg.value.switchInlineQuery(query, ['groups', 'users']);
+      return true;
+    } catch (error) {
+      console.error('分享富媒体消息失败:', error);
+      return false;
+    }
+  };
   // 分享直接链接（不通过机器人）
   const shareDirectLink = (url, options = {}) => {
     if (!tg.value) {
@@ -259,6 +294,7 @@ export function useTelegram() {
     openTelegramLink,
     shareToChat,
     shareDirectLink,
+    shareRichMessage,
     createShareTemplate,
     getChatInstance,
     getStartParam
