@@ -60,7 +60,7 @@
 import { ref } from 'vue';
 import { useTelegram } from '../composables/useTelegram.js';
 
-const { shareDirectLink, shareRichMessage, shareTemplate, createShareTemplate, showAlert, user } = useTelegram();
+const { shareDirectLink, shareRichMessage, shareTemplate } = useTelegram();
 
 // 分享模板配置
 const shareTemplates = ref([
@@ -73,7 +73,6 @@ const shareTemplates = ref([
 // 富媒体分享（推荐方式）
 const shareRichMedia = () => {
   if (!shareRichMessage || typeof shareRichMessage !== 'function') {
-    showAlert('❌ 富媒体分享功能不可用\n需要机器人支持 Inline Query');
     return;
   }
 
@@ -93,7 +92,6 @@ const shareRichMedia = () => {
 // 默认分享（简单模式）
 const shareToGroups = () => {
   if (!shareDirectLink) {
-    showAlert('分享功能不可用');
     return;
   }
   
@@ -112,7 +110,6 @@ const shareToGroups = () => {
 // 使用模板分享
 const shareWithTemplate = (templateKey) => {
   if (!shareTemplate || typeof shareTemplate !== 'function') {
-    showAlert('分享功能不可用');
     return;
   }
   

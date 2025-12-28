@@ -134,7 +134,6 @@ export function useTelegram() {
   // 分享预设模板（增强版）
   const shareTemplate = (templateType = 'share_app') => {
     if (!tg.value || typeof tg.value.switchInlineQuery !== 'function') {
-      showAlert('❌ 分享功能不可用');
       return false;
     }
     
@@ -149,10 +148,8 @@ export function useTelegram() {
     
     try {
       tg.value.switchInlineQuery(query, ['users', 'groups']);
-      showAlert('✅ 已调用分享功能\n模板: ' + templateType);
       return true;
     } catch (error) {
-      showAlert('❌ 分享失败: ' + error.message);
       return false;
     }
   };
@@ -160,14 +157,13 @@ export function useTelegram() {
   // 分享富媒体消息（通过机器人发送带图片和按钮的消息）
   const shareRichMessage = (options = {}) => {
     if (!tg.value) {
-      showAlert('❌ Telegram WebApp 未初始化');
+
       return false;
     }
 
     try {
       // 检查 switchInlineQuery 方法是否存在
       if (typeof tg.value.switchInlineQuery !== 'function') {
-        showAlert('❌ switchInlineQuery 方法不可用\n版本: ' + tg.value.version + '\n平台: ' + tg.value.platform);
         return false;
       }
 
@@ -176,14 +172,11 @@ export function useTelegram() {
       
       try {
         tg.value.switchInlineQuery(simpleQuery, ['users', 'groups']);
-        showAlert('✅ 已调用分享功能\n查询内容: ' + simpleQuery);
         return true;
       } catch (error) {
-        showAlert('❌ 分享失败: ' + error.message);
         return false;
       }
     } catch (error) {
-      showAlert('❌ 分享失败: ' + error.message);
       return false;
     }
   };
