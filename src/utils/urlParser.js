@@ -16,19 +16,12 @@ export function parseTelegramWebAppUrl(url = window.location.href) {
       tgWebAppData: null,
       tgWebAppVersion: params.get('tgWebAppVersion'),
       tgWebAppPlatform: params.get('tgWebAppPlatform'),
-      tgWebAppThemeParams: null
     };
     
     // 解析 tgWebAppData（包含用户信息等）
     const tgWebAppData = params.get('tgWebAppData');
     if (tgWebAppData) {
       result.tgWebAppData = parseTgWebAppData(tgWebAppData);
-    }
-    
-    // 解析主题参数
-    const themeParams = params.get('tgWebAppThemeParams');
-    if (themeParams) {
-      result.tgWebAppThemeParams = JSON.parse(decodeURIComponent(themeParams));
     }
     
     return result;
@@ -79,14 +72,4 @@ function parseTgWebAppData(dataString) {
 export function getTelegramUser(url) {
   const parsed = parseTelegramWebAppUrl(url);
   return parsed?.tgWebAppData?.user || null;
-}
-
-/**
- * 获取主题参数的快捷方法
- * @param {string} url - 可选的 URL，默认使用当前页面 URL
- * @returns {Object|null} 主题参数对象
- */
-export function getTelegramTheme(url) {
-  const parsed = parseTelegramWebAppUrl(url);
-  return parsed?.tgWebAppThemeParams || null;
 }

@@ -2,20 +2,6 @@
   <div class="share-section">
     <h3>🔗 分享 Mini App</h3>
     
-    <!-- 版本警告 -->
-    <div v-if="!supportsSwitchInlineQuery" class="version-warning">
-      <div class="warning-badge">
-        ⚠️ 版本提示
-      </div>
-      <p class="warning-text">
-        当前 Telegram 版本: <strong>{{ telegramVersion }}</strong><br>
-        完整分享功能需要版本 <strong>6.7+</strong><br>
-        <br>
-        现在将使用简化的分享方式。<br>
-        建议更新 Telegram 以获得最佳体验。
-      </p>
-    </div>
-    
     <div class="share-card">
       <p class="share-description">
         点击下方按钮将此 Mini App 分享到任意群组。<br>
@@ -29,10 +15,6 @@
         
         <button @click="shareToAll" class="share-button secondary">
           📨 分享到任意聊天
-        </button>
-        
-        <button @click="testOpenLink" class="share-button test">
-          🧪 测试打开链接
         </button>
       </div>
 
@@ -97,7 +79,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useTelegram } from '../composables/useTelegram.js';
 import { trackOpen, getGroupStats, trackAction } from '../utils/api.js';
 
-const { shareToChat, shareFallback, getChatInstance, showAlert, initData, user, tg } = useTelegram();
+const { shareToChat, getChatInstance, showAlert, initData, user, tg } = useTelegram();
 
 const chatInstance = computed(() => getChatInstance());
 const groupStats = ref(null);
@@ -105,8 +87,7 @@ const isLoadingStats = ref(false);
 const telegramVersion = computed(() => tg.value?.version || '未知');
 const supportsSwitchInlineQuery = computed(() => {
   if (!tg.value) return false;
-  const version = parseFloat(tg.value.version);
-  return version >= 6.7;
+  return typeof tg.value.switchInlineQuery === 'function';
 });
 
 // 组件挂载时记录打开事件
@@ -152,12 +133,9 @@ const loadGroupStats = async () => {
 // 分享到群组
 const shareToGroups = () => {
   console.log('=== 点击分享到群组按钮 ===');
-  console.log('shareToChat 存在:', !!shareToChat);
-  console.log('shareFallback 存在:', !!shareFallback);
-  console.log('支持 switchInlineQuery:', supportsSwitchInlineQuery.value);
   
-  if (!shareToChat || !shareFallback) {
-    console.error('分享函数不存在');
+  if (!shareToChat) {
+    console.error('shareToChat 函数不存在');
     showAlert('分享功能不可用');
     return;
   }
@@ -170,26 +148,18 @@ const shareToGroups = () => {
     }).catch(err => console.warn('记录失败（不影响功能）:', err));
   }
   
-  // 检查版本支持
-  if (!supportsSwitchInlineQuery.value) {
-    // 使用备用方案
-    console.log('>>> 使用备用分享方案');
-    const success = shareFallback('🎉 快来试试这个超棒的 Mini App！');
-    console.log('>>> shareFallback 调用结果:', success);
-  } else {
-    // 使用 switchInlineQuery
-    console.log('>>> 使用 switchInlineQuery');
-    const success = shareToChat('查看这个超棒的 Mini App！', ['groups']);
-    console.log('>>> shareToChat 调用结果:', success);
-  }
+  // 调用 switchInlineQuery
+  console.log('>>> 调用 switchInlineQuery');
+  const success = shareToChat('查看这个超棒的 Mini App！', ['groups']);
+  console.log('>>> shareToChat 调用结果:', success);
 };
 
 // 分享到所有类型的聊天
 const shareToAll = () => {
   console.log('=== 点击分享到所有聊天按钮 ===');
   
-  if (!shareToChat || !shareFallback) {
-    console.error('分享函数不存在');
+  if (!shareToChat) {
+    console.error('shareToChat 函数不存在');
     showAlert('分享功能不可用');
     return;
   }
@@ -202,54 +172,10 @@ const shareToAll = () => {
     }).catch(err => console.warn('记录失败（不影响功能）:', err));
   }
   
-  // 检查版本支持
-  if (!supportsSwitchInlineQuery.value) {
-    // 使用备用方案
-    console.log('>>> 使用备用分享方案');
-    const success = shareFallback('🎉 快来试试这个超棒的 Mini App！');
-    console.log('>>> shareFallback 调用结果:', success);
-  } else {
-    // 使用 switchInlineQuery
-    console.log('>>> 使用 switchInlineQuery');
-    const success = shareToChat('查看这个超棒的 Mini App！', ['users', 'bots', 'groups', 'channels']);
-    console.log('>>> shareToChat 调用结果:', success);
-  }
-};
-
-// 测试打开链接功能
-const testOpenLink = () => {
-  console.log('测试打开链接功能');
-  
-  if (!tg.value) {
-    showAlert('Telegram WebApp 未初始化');
-    return;
-  }
-  
-  console.log('可用方法:', {
-    hasOpenLink: typeof tg.value.openLink === 'function',
-    hasOpenTelegramLink: typeof tg.value.openTelegramLink === 'function',
-    hasSwitchInlineQuery: typeof tg.value.switchInlineQuery === 'function'
-  });
-  
-  // 测试打开一个简单的链接
-  const testUrl = 'https://telegram.org';
-  
-  try {
-    if (typeof tg.value.openLink === 'function') {
-      console.log('尝试 openLink:', testUrl);
-      tg.value.openLink(testUrl);
-      showAlert('✅ openLink 可用\n已尝试打开 telegram.org');
-    } else if (typeof tg.value.openTelegramLink === 'function') {
-      console.log('尝试 openTelegramLink:', testUrl);
-      tg.value.openTelegramLink(testUrl);
-      showAlert('✅ openTelegramLink 可用\n已尝试打开链接');
-    } else {
-      showAlert('❌ 没有可用的打开链接方法\n\n版本: ' + telegramVersion.value);
-    }
-  } catch (error) {
-    console.error('测试失败:', error);
-    showAlert('❌ 测试失败:\n' + error.message);
-  }
+  // 调用 switchInlineQuery
+  console.log('>>> 调用 switchInlineQuery');
+  const success = shareToChat('查看这个超棒的 Mini App！', ['users', 'bots', 'groups', 'channels']);
+  console.log('>>> shareToChat 调用结果:', success);
 };
 </script>
 
@@ -329,16 +255,6 @@ h4 {
 .share-button.secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-}
-
-.share-button.test {
-  background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
-  color: white;
-}
-
-.share-button.test:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
 }
 
 .share-button:active {
@@ -463,36 +379,6 @@ h4 {
   text-align: center;
   color: #666;
   font-style: italic;
-}
-
-.version-warning {
-  background: #fff3e0;
-  border-left: 4px solid #ff9800;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.warning-badge {
-  display: inline-block;
-  background: #ff9800;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.warning-text {
-  color: #e65100;
-  font-size: 0.9em;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.warning-text strong {
-  color: #bf360c;
 }
 
 @media (max-width: 600px) {
