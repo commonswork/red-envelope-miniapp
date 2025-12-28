@@ -78,7 +78,7 @@ const shareRichMedia = () => {
 
   // 富媒体消息配置
   const options = {
-    imageUrl: 'https://via.placeholder.com/800x400/667eea/ffffff?text=Mini+App+Preview',
+    imageUrl: 'https://cdn.dribbble.com/userupload/45573848/file/17df3bf8d98986905bfa7113afdf5067.jpg?resize=400x0',
     title: '🚀 Telegram Mini App',
     description: '快来体验这个超棒的应用！\n\n✨ 功能丰富\n🎯 简单易用\n🔥 完全免费',
     buttonText: '打开 Mini App',
