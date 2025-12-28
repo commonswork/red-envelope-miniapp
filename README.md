@@ -1,13 +1,15 @@
-# Telegram Mini App - 群组分享示例
+# 红包 Mini App
 
-这是一个展示如何在 Telegram Mini App 中实现群组分享和追踪功能的完整示例项目。
+一个基于 Telegram Mini App 的红包应用，支持用户信息展示、群组分享和富媒体消息功能。
 
 ## ✨ 核心功能
 
-- 📤 **一键分享到群组** - 使用 `switchInlineQuery` 让用户选择要分享的群组
-- 🔍 **识别来源群组** - 通过 `chat_instance` 追踪 Mini App 是从哪个群组打开的
-- 📊 **群组使用统计** - 记录和分析不同群组的使用情况
-- 🎨 **美观的 UI** - 响应式设计，适配各种设备
+- 👤 **用户信息展示** - 显示 Telegram 用户的详细信息和头像
+- 📤 **智能分享系统** - 支持富媒体卡片和文本链接两种分享方式
+- 🎨 **多种分享模板** - 简单分享、邀请朋友、新功能通知等预设模板
+- 🔍 **群组上下文识别** - 通过 `chat_instance` 追踪应用来源群组
+- 🌐 **国际化支持** - 内置中英文语言切换
+- 📱 **响应式设计** - 适配各种设备尺寸
 
 ## 🚀 快速开始
 
@@ -25,146 +27,184 @@ npm run dev
 
 ### 3. 配置 Telegram Bot
 
-在 @BotFather 中：
+在 @BotFather 中配置你的机器人：
 
-1. 创建 bot 或使用现有 bot
-2. 启用 Inline Mode：
-   ```
-   /setinline
-   选择你的 bot
-   输入 placeholder 文本
-   ```
-3. 设置 Mini App：
+1. 创建或选择现有 bot
+2. 设置 Mini App：
    ```
    /newapp
    选择你的 bot
    填写应用信息
    设置 Web App URL
    ```
-
-### 4. 运行 Bot 后端（可选）
-
-```bash
-# 安装依赖
-npm install node-telegram-bot-api
-
-# 编辑 bot-example.js，填入你的 BOT_TOKEN
-# 然后运行
-node bot-example.js
-```
-
-### 5. 运行 API 后端（可选）
-
-```bash
-# 安装依赖
-npm install express
-
-# 编辑 api-example.js，填入你的 BOT_TOKEN
-# 然后运行
-node api-example.js
-```
-
-## 📖 工作原理
-
-### 分享流程
-
-```
-用户点击"分享" 
-  ↓
-调用 switchInlineQuery()
-  ↓
-Telegram 显示聊天选择界面
-  ↓
-用户选择群组
-  ↓
-Bot 在群组中发送消息
-  ↓
-其他人点击打开
-  ↓
-获取 chat_instance（群组唯一标识）
-```
-
-### 关键代码
-
-**前端分享：**
-```javascript
-import { useTelegram } from './composables/useTelegram.js';
-
-const { shareToChat } = useTelegram();
-
-// 分享到群组
-shareToChat('查看这个 Mini App！', ['groups']);
-```
-
-**检测来源群组：**
-```javascript
-const { getChatInstance } = useTelegram();
-
-const chatInstance = getChatInstance();
-if (chatInstance) {
-  console.log('从群组打开，ID:', chatInstance);
-}
-```
+3. （可选）启用 Inline Mode 以支持富媒体分享：
+   ```
+   /setinline
+   选择你的 bot
+   输入 placeholder 文本
+   ```
 
 ## 📁 项目结构
 
 ```
 src/
 ├── components/
-│   ├── TelegramInfo.vue      # 显示 Telegram 信息
-│   ├── ShareButton.vue        # 分享按钮组件
-│   └── HelloWorld.vue
+│   ├── TelegramInfo.vue      # 用户信息展示组件
+│   └── ShareButton.vue       # 分享功能组件
 ├── composables/
-│   └── useTelegram.js         # Telegram SDK 封装
+│   └── useTelegram.js        # Telegram SDK 封装
+├── locales/
+│   ├── en-US.json           # 英文语言包
+│   ├── zh-CN.json           # 中文语言包
+│   └── i18n.js              # 国际化配置
 ├── utils/
-│   └── urlParser.js           # URL 参数解析
-├── App.vue                    # 主应用
-└── main.js
-
-bot-example.js                 # Bot 后端示例
-api-example.js                 # API 后端示例
-SHARE_GUIDE.md                 # 详细使用指南
+│   ├── api.js               # API 工具函数
+│   └── urlParser.js         # URL 参数解析
+├── views/
+│   └── Home.vue             # 主页面
+├── App.vue                  # 根组件
+└── main.js                  # 应用入口
 ```
 
-## 🔑 核心 API
+## 🔑 核心功能详解
 
 ### useTelegram Composable
 
+提供完整的 Telegram Web App SDK 封装：
+
 ```javascript
 const {
+  // 基础信息
   tg,              // Telegram WebApp 实例
   user,            // 当前用户信息
-  chat,            // 聊天信息
   initDataUnsafe,  // 初始化数据
+  isReady,         // SDK 就绪状态
   
-  // 分享相关
-  shareToChat,     // 分享到聊天
-  getChatInstance, // 获取群组上下文 ID
-  getStartParam,   // 获取启动参数
+  // 分享功能
+  shareToChat,        // 基础分享到聊天
+  shareDirectLink,    // 分享直接链接
+  shareRichMessage,   // 分享富媒体消息
+  createShareTemplate, // 创建分享模板
+  
+  // 群组识别
+  getChatInstance,    // 获取群组上下文 ID
+  getStartParam,      // 获取启动参数
   
   // UI 控制
   showMainButton,
   showAlert,
   close,
-  // ...
 } = useTelegram();
 ```
 
-## 📊 可用数据
+### 分享功能
 
-从 `initDataUnsafe` 可以获取：
+#### 1. 富媒体分享（推荐）
+```javascript
+shareRichMessage({
+  imageUrl: 'https://example.com/preview.jpg',
+  title: '🚀 Telegram Mini App',
+  description: '快来体验这个超棒的应用！',
+  buttonText: '打开 Mini App',
+  miniAppUrl: 'https://t.me/YourBot/app'
+});
+```
 
+#### 2. 文本链接分享
+```javascript
+shareDirectLink('https://t.me/YourBot/app', {
+  emoji: '🚀',
+  title: 'Mini App 分享',
+  description: '快来体验这个超棒的应用！',
+  useMarkdown: true,
+  hashtags: ['MiniApp', 'Telegram']
+});
+```
+
+#### 3. 模板分享
+```javascript
+// 使用预设模板
+const template = createShareTemplate('invitation', {
+  title: '邀请你体验',
+  description: '一起来探索这个有趣的应用吧！'
+});
+shareDirectLink(url, template);
+```
+
+### 群组上下文识别
+
+```javascript
+// 检测应用来源
+const chatInstance = getChatInstance();
+if (chatInstance) {
+  console.log('从群组打开，实例ID:', chatInstance);
+  // 可以根据不同群组提供不同功能
+}
+
+// 获取启动参数
+const startParam = getStartParam();
+if (startParam) {
+  console.log('启动参数:', startParam);
+  // 处理深度链接参数
+}
+```
+
+## 🎨 UI 组件
+
+### TelegramInfo 组件
+- 显示用户头像、姓名、用户名
+- 展示群组上下文信息
+- 加载状态和错误处理
+
+### ShareButton 组件
+- 富媒体分享按钮
+- 文本链接分享按钮
+- 多种预设分享模板
+- 功能说明和使用提示
+
+## 🌐 国际化
+
+项目支持中英文切换：
+
+```javascript
+// 在组件中使用
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+
+// 使用翻译
+{{ t('welcome.title') }}
+```
+
+语言包位置：
+- `src/locales/zh-CN.json` - 中文
+- `src/locales/en-US.json` - 英文
+
+## 🔧 技术栈
+
+- **前端框架**: Vue 3 + Composition API
+- **构建工具**: Vite
+- **样式框架**: Tailwind CSS
+- **状态管理**: Pinia
+- **路由**: Vue Router
+- **国际化**: Vue I18n
+- **Telegram**: Web Apps SDK
+
+## 📊 数据结构
+
+### 用户信息 (initDataUnsafe)
 ```javascript
 {
   user: {
     id: 123456789,
     first_name: "张三",
+    last_name: "李四",
     username: "zhangsan",
-    language_code: "zh"
+    language_code: "zh",
+    photo_url: "https://..."
   },
-  chat_type: "supergroup",      // 聊天类型
-  chat_instance: "abc123xyz",   // 群组唯一标识 ⭐
-  start_param: "custom_param",  // 自定义参数
+  chat_type: "supergroup",
+  chat_instance: "abc123xyz",  // 群组唯一标识
+  start_param: "custom_param", // 启动参数
   auth_date: 1234567890,
   hash: "..."
 }
@@ -172,57 +212,39 @@ const {
 
 ## 🎯 使用场景
 
-1. **追踪 Mini App 在哪些群组中被使用**
-   - 通过 `chat_instance` 识别不同群组
-   - 统计每个群组的活跃用户数
-   - 分析使用趋势
-
-2. **群组专属功能**
-   - 根据 `chat_instance` 提供不同功能
-   - 实现群组协作功能
-   - 创建群组排行榜
-
-3. **病毒式传播追踪**
-   - 记录分享链路
-   - 分析传播效果
-   - 优化分享策略
+1. **红包应用** - 在群组中发送和领取红包
+2. **社交分享** - 分享内容到不同的 Telegram 群组
+3. **用户识别** - 基于群组上下文提供个性化功能
+4. **病毒式传播** - 通过分享功能扩大用户群体
 
 ## ⚠️ 注意事项
 
-### 隐私限制
+### 富媒体分享要求
+- 需要机器人支持 Inline Query
+- 必须在 @BotFather 中启用 `/setinline`
+- 需要编写后端处理 `inline_query` 事件
 
-- `chat_instance` 是**匿名标识符**
-- 无法通过它获取群组名称、成员列表
-- 只能用来区分不同的群组上下文
+### 隐私保护
+- `chat_instance` 是匿名标识符
+- 无法获取群组名称或成员信息
+- 仅用于区分不同群组上下文
 
-### 必需配置
+### 开发建议
+- 优先使用文本链接分享（无需额外开发）
+- 富媒体分享需要后端支持
+- 测试时注意 Telegram 环境和浏览器环境的差异
 
-- ✅ 必须在 BotFather 中启用 Inline Mode
-- ✅ Bot 需要处理 `inline_query` 事件
-- ✅ 需要返回包含 Mini App 按钮的 inline result
+## 🚀 部署
 
-## 📚 详细文档
+### 构建生产版本
+```bash
+npm run build
+```
 
-查看 [SHARE_GUIDE.md](./SHARE_GUIDE.md) 了解完整的实现细节和最佳实践。
-
-## 🔧 技术栈
-
-- Vue 3 + Vite
-- Telegram Web Apps SDK
-- Node.js + Express (后端示例)
-- node-telegram-bot-api (Bot 示例)
-
-## ⚠️ 故障排查
-
-如果点击"分享到群组"没有反应，请查看 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)。
-
-**最常见的问题：Bot 未启用 Inline Mode**
-
-解决方法：
-1. 打开 @BotFather
-2. 发送 `/setinline`
-3. 选择你的 bot
-4. 输入 placeholder 文本
+### 预览构建结果
+```bash
+npm run preview
+```
 
 ## 📝 License
 
@@ -231,3 +253,7 @@ MIT
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+---
+
+**开发提示**: 这是一个 Telegram Mini App 项目，需要在 Telegram 环境中运行才能获取完整功能。在浏览器中开发时，某些 Telegram 特有功能可能无法正常工作。
