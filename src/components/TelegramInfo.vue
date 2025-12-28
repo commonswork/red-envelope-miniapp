@@ -291,4 +291,20 @@ h3 {
   font-size: 0.85em;
   line-height: 1.5;
 }
+
+.hint {
+  font-size: 0.85em;
+  color: #999;
+  font-style: italic;
+}
+
+.info-note {
+  padding: 12px;
+  background: #e3f2fd;
+  border-left: 3px solid #2196f3;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #1976d2;
+  margin-top: 10px;
+}
 </style>
