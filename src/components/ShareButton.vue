@@ -120,7 +120,10 @@ const loadGroupStats = async () => {
 
 // 分享到群组
 const shareToGroups = async () => {
+  console.log('点击分享到群组按钮');
+  
   if (!shareToChat) {
+    console.error('shareToChat 函数不存在');
     showAlert('分享功能不可用');
     return;
   }
@@ -137,12 +140,16 @@ const shareToGroups = async () => {
   }
   
   // 只允许分享到群组和超级群组
-  shareToChat('查看这个超棒的 Mini App！', ['groups']);
+  const success = shareToChat('查看这个超棒的 Mini App！', ['groups']);
+  console.log('shareToChat 调用结果:', success);
 };
 
 // 分享到所有类型的聊天
 const shareToAll = async () => {
+  console.log('点击分享到所有聊天按钮');
+  
   if (!shareToChat) {
+    console.error('shareToChat 函数不存在');
     showAlert('分享功能不可用');
     return;
   }
@@ -159,7 +166,8 @@ const shareToAll = async () => {
   }
   
   // 允许分享到所有类型的聊天
-  shareToChat('查看这个超棒的 Mini App！', ['users', 'bots', 'groups', 'channels']);
+  const success = shareToChat('查看这个超棒的 Mini App！', ['users', 'bots', 'groups', 'channels']);
+  console.log('shareToChat 调用结果:', success);
 };
 </script>
 

@@ -205,12 +205,24 @@ const {
 
 查看 [SHARE_GUIDE.md](./SHARE_GUIDE.md) 了解完整的实现细节和最佳实践。
 
-## 🛠️ 技术栈
+## 🔧 技术栈
 
 - Vue 3 + Vite
 - Telegram Web Apps SDK
 - Node.js + Express (后端示例)
 - node-telegram-bot-api (Bot 示例)
+
+## ⚠️ 故障排查
+
+如果点击"分享到群组"没有反应，请查看 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)。
+
+**最常见的问题：Bot 未启用 Inline Mode**
+
+解决方法：
+1. 打开 @BotFather
+2. 发送 `/setinline`
+3. 选择你的 bot
+4. 输入 placeholder 文本
 
 ## 📝 License
 

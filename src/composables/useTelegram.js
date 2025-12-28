@@ -35,7 +35,10 @@ export function useTelegram() {
       console.log('Telegram Web App 初始化完成:', {
         user: user.value,
         chat: chat.value,
-        initDataUnsafe: initDataUnsafe.value
+        initDataUnsafe: initDataUnsafe.value,
+        version: tg.value.version,
+        platform: tg.value.platform,
+        hasSwitchInlineQuery: typeof tg.value.switchInlineQuery === 'function'
       });
     } else {
       console.warn('Telegram Web App SDK 未加载');
@@ -129,10 +132,28 @@ export function useTelegram() {
 
   // 分享 Mini App 到聊天（使用 inline query）
   const shareToChat = (message = '', chatTypes = ['users', 'groups', 'channels']) => {
-    if (tg.value) {
-      // 使用 switchInlineQuery 让用户选择要分享到的聊天
-      // message 会作为 inline query 传递给 bot
+    if (!tg.value) {
+      console.error('Telegram WebApp 未初始化');
+      return false;
+    }
+    
+    try {
+      console.log('调用 switchInlineQuery:', { message, chatTypes });
+      
+      // 检查方法是否存在
+      if (typeof tg.value.switchInlineQuery !== 'function') {
+        console.error('switchInlineQuery 方法不可用');
+        showAlert('分享功能不可用，请确保 Bot 已启用 Inline Mode');
+        return false;
+      }
+      
+      // 调用 switchInlineQuery
       tg.value.switchInlineQuery(message, chatTypes);
+      return true;
+    } catch (error) {
+      console.error('switchInlineQuery 调用失败:', error);
+      showAlert('分享失败: ' + error.message);
+      return false;
     }
   };
 
