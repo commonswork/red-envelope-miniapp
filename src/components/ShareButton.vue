@@ -60,7 +60,7 @@
 import { ref } from 'vue';
 import { useTelegram } from '../composables/useTelegram.js';
 
-const { shareDirectLink, shareRichMessage, createShareTemplate, showAlert, user } = useTelegram();
+const { shareDirectLink, shareRichMessage, shareTemplate, createShareTemplate, showAlert, user } = useTelegram();
 
 // 分享模板配置
 const shareTemplates = ref([
@@ -111,46 +111,13 @@ const shareToGroups = () => {
 
 // 使用模板分享
 const shareWithTemplate = (templateKey) => {
-  if (!shareDirectLink) {
+  if (!shareTemplate || typeof shareTemplate !== 'function') {
     showAlert('分享功能不可用');
     return;
   }
   
-  const currentUrl = "https://t.me/MyMoniMoniBot/fisrtminiapp";
-  
-  // 根据用户信息自定义内容
-  const userName = user.value?.first_name || '朋友';
-  
-  let customData = {};
-  
-  switch (templateKey) {
-    case 'invitation':
-      customData = {
-        title: `${userName} 邀请你体验`,
-        description: '一起来探索这个有趣的 Mini App 吧！',
-        mentions: user.value?.username ? [user.value.username] : []
-      };
-      break;
-      
-    case 'feature':
-      customData = {
-        title: '🆕 新功能上线啦！',
-        description: '发现更多精彩功能，快来体验吧！',
-        text: '点击链接立即体验 👆'
-      };
-      break;
-      
-    case 'announcement':
-      customData = {
-        title: '📢 重要更新',
-        description: '查看最新版本的精彩内容',
-        text: '立即查看详情 ⬇️'
-      };
-      break;
-  }
-  
-  const template = createShareTemplate(templateKey, customData);
-  shareDirectLink(currentUrl, template);
+  // 直接使用模板分享
+  shareTemplate(templateKey);
 };
 </script>
 

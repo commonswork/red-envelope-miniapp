@@ -131,17 +131,30 @@ export function useTelegram() {
     }
   };
 
-  // 分享预设模板（简化版）
-  const shareTemplate = (templateType = 'default') => {
+  // 分享预设模板（增强版）
+  const shareTemplate = (templateType = 'share_app') => {
+    if (!tg.value || typeof tg.value.switchInlineQuery !== 'function') {
+      showAlert('❌ 分享功能不可用');
+      return false;
+    }
+    
     const templates = {
-      default: '',
+      default: 'share_app',
       invitation: 'invitation',
       feature: 'feature', 
       announcement: 'announcement'
     };
     
-    const query = templates[templateType] || '';
-    return shareToChat(query);
+    const query = templates[templateType] || templates.default;
+    
+    try {
+      tg.value.switchInlineQuery(query, ['users', 'groups']);
+      showAlert('✅ 已调用分享功能\n模板: ' + templateType);
+      return true;
+    } catch (error) {
+      showAlert('❌ 分享失败: ' + error.message);
+      return false;
+    }
   };
 
   // 分享富媒体消息（通过机器人发送带图片和按钮的消息）
