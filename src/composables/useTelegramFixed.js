@@ -70,7 +70,7 @@ export function useTelegram() {
   // 显示弹窗
   const showAlert = (message) => {
     if (tg.value) {
-      tg.value.showAlert(message);
+      // tg.value.showAlert(message);
     }
   };
 
